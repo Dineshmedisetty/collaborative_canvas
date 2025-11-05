@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Drawing Canvas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="title">Collaborative Canvas</h1>
+        </div>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-section">
+            <button id="brushBtn" class="tool-btn active" title="Brush (Ctrl+B)" data-tool="brush">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                </svg>
+                <span>Brush</span>
+            </button>
+            <button id="eraserBtn" class="tool-btn" title="Eraser (Ctrl+E)" data-tool="eraser">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 20H7L3 16L11 8L17 14L20 11V20Z"></path>
+                </svg>
+                <span>Eraser</span>
+            </button>
+            <button id="rectangleBtn" class="tool-btn" title="Rectangle (Ctrl+R)" data-tool="rectangle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                </svg>
+                <span>Rectangle</span>
+            </button>
+            <button id="circleBtn" class="tool-btn" title="Circle (Ctrl+C)" data-tool="circle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+                <span>Circle</span>
+            </button>
+            <button id="lineBtn" class="tool-btn" title="Line (Ctrl+L)" data-tool="line">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                </svg>
+                <span>Line</span>
+            </button>
+            <button id="textBtn" class="tool-btn" title="Text (Ctrl+T)" data-tool="text">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                    <line x1="9" y1="20" x2="15" y2="20"></line>
+                    <line x1="12" y1="4" x2="12" y2="20"></line>
+                </svg>
+                <span>Text</span>
+            </button>
+        </div>
+
+        <div class="toolbar-section">
+            <label class="toolbar-label">Color:</label>
+            <input type="color" id="colorPicker" value="#000000" class="color-picker">
+            
+            <label class="toolbar-label">Size:</label>
+            <input type="range" id="strokeWidth" min="1" max="50" value="3" class="slider">
+            <span id="strokeWidthValue" class="value-display">3</span>
+            
+            <label class="toolbar-label">Font Size:</label>
+            <input type="range" id="fontSize" min="12" max="72" value="24" class="slider" style="display: none;">
+            <span id="fontSizeValue" class="value-display" style="display: none;">24</span>
+            
+        </div>
+
+        <div class="toolbar-section toolbar-actions">
+            <button id="undoBtn" class="action-btn" title="Undo (Ctrl+Z)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 7v6h6"></path>
+                    <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"></path>
+                </svg>
+            </button>
+            <button id="redoBtn" class="action-btn" title="Redo (Ctrl+Y)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 7v6h-6"></path>
+                    <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"></path>
+                </svg>
+            </button>
+            <button id="clearBtn" class="action-btn clear-btn" title="Clear Canvas">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="toolbar-section">
+            <div class="online-users-container">
+                <div class="online-users" id="onlineUsersBtn" title="Click to view online users">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span id="onlineCount">0</span>
+                </div>
+                <div id="usersModal" class="users-modal" style="display: none;">
+                    <div class="users-modal-header">
+                        <h3>Online Users</h3>
+                        <button id="closeUsersModal" class="close-users-btn" aria-label="Close">&times;</button>
+                    </div>
+                    <div id="usersList" class="users-list">
+                        <!-- Users will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+        <canvas id="drawingCanvas" class="canvas"></canvas>
+        <canvas id="cursorCanvas" class="canvas canvas-overlay"></canvas>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <span class="status-indicator" id="connectionStatus"></span>
+            <span id="statusText">Connected</span>
+        </div>
+        <div class="status-item">
+            <span id="roomInfo">Room: default</span>
+        </div>
+        <div class="status-item">
+            <span id="operationCount">Operations: 0</span>
+        </div>
+        <div class="status-item">
+            <span id="fpsCounter">FPS: --</span>
+        </div>
+        <div class="status-item">
+            <span id="latencyDisplay">Latency: --ms</span>
+        </div>
+    </div>
+
+    <!-- User Cursors Container -->
+    <div id="cursorsContainer"></div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Collaborative Canvas! 🎨</h2>
+            <p>Draw together with multiple users in real-time.</p>
+            <div class="modal-features">
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Real-time collaborative drawing</li>
+                    <li>See other users' cursors</li>
+                    <li>Undo/Redo operations (works globally)</li>
+                    <li>Drawing tools: Brush, Eraser, Rectangle, Circle, Line</li>
+                    <li>Text tool for adding text labels</li>
+                    <li>Customizable colors and stroke width</li>
+                    <li>Performance metrics (FPS & latency)</li>
+                </ul>
+                <p><strong>Keyboard Shortcuts:</strong></p>
+                <ul>
+                    <li><kbd>Ctrl+B</kbd> - Brush tool</li>
+                    <li><kbd>Ctrl+E</kbd> - Eraser tool</li>
+                    <li><kbd>Ctrl+R</kbd> - Rectangle tool</li>
+                    <li><kbd>Ctrl+C</kbd> - Circle tool</li>
+                    <li><kbd>Ctrl+L</kbd> - Line tool</li>
+                    <li><kbd>Ctrl+T</kbd> - Text tool</li>
+                    <li><kbd>Ctrl+Z</kbd> - Undo</li>
+                    <li><kbd>Ctrl+Y</kbd> or <kbd>Ctrl+Shift+Z</kbd> - Redo</li>
+                </ul>
+            </div>
+            <div class="modal-actions">
+                <button id="startDrawing" class="modal-btn primary">Start Drawing</button>
+                <button id="closeWelcome" class="modal-btn secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
