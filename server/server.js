@@ -342,6 +342,11 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
+// Ensure Railway health checks pass
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
 
 httpServer.listen(PORT, () => {
     console.log(`========================================`);
