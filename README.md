@@ -199,5 +199,4 @@ For questions or issues, please open an issue on the repository.
 
 ---
 
-**Note**: This is a demonstration project for real-time collaborative drawing. For production use, consider adding authentication, persistence, and enhanced security measures.
 
