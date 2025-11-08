@@ -14,22 +14,19 @@ class RoomManager {
     }
     
     /**
-     * Get or create a room (always starts fresh - persistence disabled)
+     * Get or create a room (with persistence enabled)
      */
     getRoom(roomId) {
         if (!this.rooms.has(roomId)) {
             const room = new DrawingState(roomId);
             
-            // Persistence loading disabled - always start with fresh canvas
-            // If you want to enable persistence, uncomment the lines below:
-            /*
+            // Load saved state if it exists
             const savedState = this.persistence.loadRoomState(roomId);
             if (savedState) {
                 room.operations = savedState.operations;
                 room.currentIndex = savedState.currentIndex;
                 console.log(`Loaded ${savedState.operations.length} operations for room ${roomId}`);
             }
-            */
             
             this.rooms.set(roomId, room);
         }
@@ -37,27 +34,20 @@ class RoomManager {
     }
     
     /**
-     * Save room state to disk (disabled - persistence not enabled)
+     * Save room state to disk
      */
     saveRoom(roomId) {
-        // Persistence disabled - not saving to disk
-        // If you want to enable persistence, uncomment the code below:
-        /*
         const room = this.rooms.get(roomId);
         if (room) {
             const state = room.getFullState();
             this.persistence.saveRoomState(roomId, state);
         }
-        */
     }
     
     /**
-     * Start auto-save timer (disabled - persistence not enabled)
+     * Start auto-save timer
      */
     startAutoSave() {
-        // Auto-save disabled - drawings won't persist across server restarts
-        // If you want to enable persistence, uncomment the code below:
-        /*
         if (this.autoSaveInterval) {
             clearInterval(this.autoSaveInterval);
         }
@@ -72,8 +62,6 @@ class RoomManager {
         }, 30000); // Save every 30 seconds
         
         console.log('Auto-save started (every 30 seconds)');
-        */
-        console.log('Auto-save disabled - drawings will not persist across server restarts');
     }
     
     /**
@@ -103,9 +91,9 @@ class RoomManager {
         
         room.removeUser(userId);
         
-        // Clean up empty rooms (persistence disabled - not saving before deletion)
+        // Clean up empty rooms (save before deletion)
         if (room.getUserCount() === 0) {
-            // this.saveRoom(roomId);
+            this.saveRoom(roomId);
             this.rooms.delete(roomId);
             console.log(`Room ${roomId} deleted (no users)`);
         }

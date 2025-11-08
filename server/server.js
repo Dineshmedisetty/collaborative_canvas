@@ -16,26 +16,26 @@ const io = new Server(httpServer, {
 // Serve static files from client directory
 app.use(express.static(path.join(__dirname, '../client')));
 
-// Initialize room manager (persistence disabled - drawings won't persist across restarts)
+// Initialize room manager (persistence enabled - drawings will persist across restarts)
 const roomManager = new RoomManager();
 
-// Graceful shutdown (persistence disabled - not saving on shutdown)
+// Graceful shutdown (save all room states)
 process.on('SIGINT', () => {
     console.log('\nShutting down server...');
-    // Persistence disabled - not saving room states
-    // roomManager.rooms.forEach((room, roomId) => {
-    //     roomManager.saveRoom(roomId);
-    // });
+    // Save all room states before shutdown
+    roomManager.rooms.forEach((room, roomId) => {
+        roomManager.saveRoom(roomId);
+    });
     roomManager.stopAutoSave();
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
     console.log('\nShutting down server...');
-    // Persistence disabled - not saving room states
-    // roomManager.rooms.forEach((room, roomId) => {
-    //     roomManager.saveRoom(roomId);
-    // });
+    // Save all room states before shutdown
+    roomManager.rooms.forEach((room, roomId) => {
+        roomManager.saveRoom(roomId);
+    });
     roomManager.stopAutoSave();
     process.exit(0);
 });
@@ -60,8 +60,27 @@ io.on('connection', (socket) => {
     });
     
     // Handle room joining
-    socket.on('joinRoom', ({ roomId }) => {
-        console.log(`User ${userId} joining room ${roomId}`);
+    socket.on('joinRoom', ({ roomId, previousRoomId }) => {
+        console.log(`User ${userId} joining room ${roomId}${previousRoomId ? ` (from ${previousRoomId})` : ''}`);
+        
+        // Leave previous room if switching
+        if (previousRoomId && previousRoomId !== roomId) {
+            console.log(`User ${userId} leaving room ${previousRoomId}`);
+            socket.leave(previousRoomId);
+            
+            // Remove user from old room in room manager
+            roomManager.removeUser(previousRoomId, userId);
+            
+            // Notify users in old room
+            socket.to(previousRoomId).emit('userLeft', { userId });
+            
+            const oldRoom = roomManager.getRoom(previousRoomId);
+            if (oldRoom) {
+                io.to(previousRoomId).emit('onlineUsers', {
+                    users: oldRoom.getUsers()
+                });
+            }
+        }
         
         // Join the socket.io room
         socket.join(roomId);
@@ -161,8 +180,8 @@ io.on('connection', (socket) => {
             timestamp: stroke.timestamp
         });
         
-        // Save state after adding operation (disabled - persistence not enabled)
-        // roomManager.saveRoom(roomId);
+        // Save state after adding operation
+        roomManager.saveRoom(roomId);
         
         room.clearActiveStroke(userId);
         
@@ -207,8 +226,8 @@ io.on('connection', (socket) => {
         const canUndo = room.undo();
         
         if (canUndo) {
-            // Save state after undo (disabled - persistence not enabled)
-            // roomManager.saveRoom(roomId);
+            // Save state after undo
+            roomManager.saveRoom(roomId);
             
             const state = room.getFullState();
             console.log(`Undo successful. New state:`, {
@@ -248,8 +267,8 @@ io.on('connection', (socket) => {
         const canRedo = room.redo();
         
         if (canRedo) {
-            // Save state after redo (disabled - persistence not enabled)
-            // roomManager.saveRoom(roomId);
+            // Save state after redo
+            roomManager.saveRoom(roomId);
             
             const state = room.getFullState();
             console.log(`Redo successful. New state:`, {
@@ -287,8 +306,8 @@ io.on('connection', (socket) => {
         
         room.clear();
         
-        // Save cleared state (disabled - persistence not enabled)
-        // roomManager.saveRoom(roomId);
+        // Save cleared state
+        roomManager.saveRoom(roomId);
         
         // Broadcast to all users
         io.to(roomId).emit('operation', {
