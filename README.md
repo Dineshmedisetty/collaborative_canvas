@@ -10,9 +10,9 @@ A multi-user drawing application where multiple people can draw simultaneously o
 - **User Indicators**: Visual cursor positions showing where other users are currently drawing
 - **Global Undo/Redo**: Works across all users with server-side state management
 - **User Management**: Shows who's online and assigns unique colors to users
-- **Room System**: Multiple isolated canvases (currently using default room)
+- **Room System**: Multiple isolated canvases with room selection UI (create/join rooms)
 - **Mobile Support**: Touch events for drawing on mobile devices
-- **Drawing Persistence**: Disabled by default - canvas starts fresh on each server restart
+- **Drawing Persistence**: Auto-save every 30 seconds - drawings persist across server restarts
 - **Performance Metrics**: Real-time FPS counter and latency display
 
 ### Technical Features
@@ -115,13 +115,12 @@ collaborative-canvas/
 
 ## 🐛 Known Limitations
 
-1. **Single Room Only**: Room system exists but UI only supports default room
-2. **No Drawing Persistence**: Drawings are not saved - canvas starts fresh on each server restart (persistence can be enabled by uncommenting code in `server/rooms.js`)
-3. **Conflict Resolution**: Conflicts are handled sequentially (last operation wins for simultaneous strokes)
-4. **History Limit**: Operation history limited to 1000 operations per room
-5. **No User Names**: Users are identified by ID only (first 8 characters displayed)
-6. **Image Size Limit**: Images are automatically resized to max 400px (client-side)
-7. **Text Editing**: Text cannot be edited after placement (must undo and re-add)
+1. **Conflict Resolution**: Conflicts are handled sequentially (last operation wins for simultaneous strokes)
+2. **History Limit**: Operation history limited to 1000 operations per room
+3. **No User Names**: Users are identified by ID only (first 8 characters displayed)
+4. **Text Editing**: Text cannot be edited after placement (must undo and re-add)
+5. **File-based Storage**: Currently uses file system for persistence (consider database for production)
+6. **No Authentication**: All users can modify any room (no access control)
 
 ## ⚠️ Browser Compatibility
 
@@ -160,16 +159,34 @@ This uses `nodemon` to auto-reload the server on file changes.
 
 ## 📝 Future Improvements
 
-- [ ] Add drawing persistence (database storage)
-- [ ] Implement room selection UI
-- [ ] Add user names/avatars
-- [ ] Add performance metrics (FPS, latency)
-- [ ] Implement save/load functionality
-- [ ] Add more drawing tools (shapes, text, images)
-- [ ] Add authentication and authorization
-- [ ] Implement rate limiting
-- [ ] Add drawing export (PNG, SVG)
-- [ ] Improve conflict resolution with operational transforms
+### ✅ Completed Features
+- [x] **Drawing Persistence** - File-based persistence with auto-save (every 30 seconds)
+- [x] **Room System** - Multiple isolated canvases with room selection UI
+- [x] **Performance Metrics** - Real-time FPS counter and latency display
+- [x] **Save/Load Functionality** - Drawings persist across server restarts
+- [x] **Drawing Tools** - Brush, eraser, rectangle, circle, line, and text tools
+- [x] **Smooth Drawing** - Fixed dotted line issue for continuous smooth strokes
+
+### 🚀 Planned Improvements
+- [ ] **User Names/Avatars** - Allow users to set custom names and profile pictures
+- [ ] **Authentication & Authorization** - User accounts and permission system
+- [ ] **Rate Limiting** - Prevent abuse and spam
+- [ ] **Drawing Export** - Export canvas as PNG, SVG, or PDF
+- [ ] **Image Upload** - Upload and draw images on canvas
+- [ ] **Advanced Shapes** - Polygon, arrow, and custom shape tools
+- [ ] **Layer Management** - Multiple layers for complex drawings
+- [ ] **Drawing History Timeline** - View and restore previous canvas states
+- [ ] **Collaborative Cursors** - Enhanced cursor tracking with user names
+- [ ] **Room Permissions** - Private/public rooms with access control
+- [ ] **Database Storage** - Migrate from file-based to database (MongoDB/PostgreSQL)
+- [ ] **Operational Transforms** - Better conflict resolution for simultaneous edits
+- [ ] **Mobile App** - Native mobile app for iOS and Android
+- [ ] **Offline Support** - Work offline and sync when connection restored
+- [ ] **Drawing Templates** - Pre-made templates and backgrounds
+- [ ] **Undo/Redo History** - Visual history timeline for undo/redo
+- [ ] **Collaboration Invites** - Share room links with expiration
+- [ ] **Drawing Comments** - Add comments and annotations to drawings
+- [ ] **Version Control** - Save and restore different versions of drawings
 
 ## ⏱️ Time Spent
 
