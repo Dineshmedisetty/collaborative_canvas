@@ -17,6 +17,7 @@ export class CanvasManager {
         this.startPos = null; // For shapes
         this.isTextMode = false;
         this.textInput = null;
+        this.lastDrawnPointIndex = 0; // Track last drawn point for smooth lines
         
         // Operation history for preview (synced from main.js)
         this.operationHistory = [];
@@ -168,6 +169,9 @@ export class CanvasManager {
             points: [pos]
         };
         
+        // Reset last drawn point index for new stroke
+        this.lastDrawnPointIndex = 0;
+        
         // Emit stroke start event
         this.emit('strokeStart', this.currentStroke);
     }
@@ -198,27 +202,45 @@ export class CanvasManager {
         // Add point to current stroke
         this.currentStroke.points.push(pos);
         
-        // Throttle drawing for performance
+        // Draw immediately for smooth continuous lines
+        // Always draw from the last drawn point to ensure no gaps
+        if (this.currentStroke.points.length >= 2) {
+            this.drawStrokeSegment(
+                this.currentStroke,
+                this.lastDrawnPointIndex
+            );
+            // Update last drawn point index to the last point
+            // (so next segment connects smoothly from where we left off)
+            this.lastDrawnPointIndex = this.currentStroke.points.length - 1;
+        }
+        
+        // Throttle network events for performance (but always draw locally)
         const now = Date.now();
-        if (now - this.lastDrawTime < this.drawThrottle) return;
-        this.lastDrawTime = now;
-        
-        // Draw locally for immediate feedback
-        this.drawStrokeSegment(
-            this.currentStroke,
-            this.currentStroke.points.length - 2
-        );
-        
-        // Emit drawing event
-        this.emit('strokeDraw', {
-            points: this.currentStroke.points.slice(-2) // Only send new points
-        });
+        if (now - this.lastDrawTime >= this.drawThrottle) {
+            this.lastDrawTime = now;
+            
+            // Emit drawing event
+            this.emit('strokeDraw', {
+                points: this.currentStroke.points.slice(-2) // Only send new points
+            });
+        }
     }
     
     handleDrawEnd() {
         if (!this.isDrawing || !this.currentStroke) return;
         
         this.isDrawing = false;
+        
+        // For brush/eraser, ensure the final segment is drawn
+        if (!['rectangle', 'circle', 'line'].includes(this.currentTool)) {
+            if (this.currentStroke.points && this.currentStroke.points.length >= 2) {
+                // Draw any remaining undrawn points
+                this.drawStrokeSegment(
+                    this.currentStroke,
+                    this.lastDrawnPointIndex
+                );
+            }
+        }
         
         // For shape tools, finalize the shape
         if (['rectangle', 'circle', 'line'].includes(this.currentTool)) {
@@ -233,6 +255,7 @@ export class CanvasManager {
         
         this.currentStroke = null;
         this.startPos = null;
+        this.lastDrawnPointIndex = 0;
     }
     
     /**
