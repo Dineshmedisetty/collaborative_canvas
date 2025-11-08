@@ -11,6 +11,11 @@
     <header class="header">
         <div class="header-content">
             <h1 class="title">Collaborative Canvas</h1>
+            <div class="room-controls">
+                <input type="text" id="roomInput" placeholder="Enter room name" class="room-input" maxlength="50">
+                <button type="button" id="joinRoomBtn" class="room-btn" title="Join Room">Join</button>
+                <button type="button" id="createRoomBtn" class="room-btn" title="Create New Room">New</button>
+            </div>
         </div>
     </header>
 
@@ -131,6 +136,7 @@
         </div>
         <div class="status-item">
             <span id="roomInfo">Room: default</span>
+            <button type="button" id="roomSettingsBtn" class="room-settings-btn" title="Room Settings">⚙️</button>
         </div>
         <div class="status-item">
             <span id="operationCount">Operations: 0</span>
@@ -158,6 +164,8 @@
                 <p><strong>Features:</strong></p>
                 <ul>
                     <li>Real-time collaborative drawing</li>
+                    <li>Multiple isolated rooms (create or join different canvases)</li>
+                    <li>Drawing persistence (saved automatically, persists across restarts)</li>
                     <li>See other users' cursors</li>
                     <li>Undo/Redo operations (works globally)</li>
                     <li>Drawing tools: Brush, Eraser, Rectangle, Circle, Line</li>

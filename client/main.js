@@ -48,14 +48,22 @@ class CollaborativeCanvas {
             // Start latency tracking after connection
             this.performanceMonitor.startLatencyTracking(this.wsManager.socket);
             
-            // Join default room
-            this.wsManager.joinRoom('default');
+            // Get room from URL or localStorage, or use default
+            const roomId = this.getRoomFromURL() || this.getRoomFromStorage() || 'default';
+            this.wsManager.joinRoom(roomId);
+            this.updateRoomInfo(roomId);
             
             // Setup event listeners
             this.setupCanvasEvents();
             this.setupWebSocketEvents();
             this.setupUIEvents();
             this.setupKeyboardShortcuts();
+            
+            // Initialize room input after UI is set up
+            const roomInput = document.getElementById('roomInput');
+            if (roomInput) {
+                roomInput.value = this.wsManager.roomId || 'default';
+            }
             
             // Start UI update loop for performance metrics
             this.startPerformanceUpdateLoop();
@@ -279,6 +287,62 @@ class CollaborativeCanvas {
                 }
             }
         });
+        
+        // Room management
+        const roomInput = document.getElementById('roomInput');
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        const createRoomBtn = document.getElementById('createRoomBtn');
+        const roomSettingsBtn = document.getElementById('roomSettingsBtn');
+        
+        if (joinRoomBtn) {
+            joinRoomBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Join button clicked');
+                const roomId = roomInput ? roomInput.value.trim() || 'default' : 'default';
+                console.log('Room ID from input:', roomId);
+                this.switchRoom(roomId);
+            });
+        } else {
+            console.error('joinRoomBtn not found!');
+        }
+        
+        if (createRoomBtn) {
+            createRoomBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Create button clicked');
+                // Generate a random room ID
+                const roomId = 'room-' + Math.random().toString(36).substring(2, 9);
+                if (roomInput) {
+                    roomInput.value = roomId;
+                }
+                console.log('Generated room ID:', roomId);
+                this.switchRoom(roomId);
+            });
+        } else {
+            console.error('createRoomBtn not found!');
+        }
+        
+        if (roomInput) {
+            roomInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const roomId = roomInput.value.trim() || 'default';
+                    this.switchRoom(roomId);
+                }
+            });
+            
+        }
+        
+        if (roomSettingsBtn) {
+            roomSettingsBtn.addEventListener('click', () => {
+                // Focus room input
+                if (roomInput) {
+                    roomInput.focus();
+                    roomInput.select();
+                }
+            });
+        }
     }
     
     setupKeyboardShortcuts() {
@@ -632,6 +696,94 @@ class CollaborativeCanvas {
     }
     
     /**
+     * Get room ID from URL parameters
+     */
+    getRoomFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('room');
+    }
+    
+    /**
+     * Get room ID from localStorage
+     */
+    getRoomFromStorage() {
+        return localStorage.getItem('lastRoomId');
+    }
+    
+    /**
+     * Save room ID to localStorage
+     */
+    saveRoomToStorage(roomId) {
+        localStorage.setItem('lastRoomId', roomId);
+    }
+    
+    /**
+     * Update room info display
+     */
+    updateRoomInfo(roomId) {
+        const roomInfo = document.getElementById('roomInfo');
+        if (roomInfo) {
+            roomInfo.textContent = `Room: ${roomId}`;
+        }
+        
+        const roomInput = document.getElementById('roomInput');
+        if (roomInput) {
+            roomInput.value = roomId;
+        }
+        
+        // Update URL without reload
+        const url = new URL(window.location);
+        url.searchParams.set('room', roomId);
+        window.history.pushState({}, '', url);
+        
+        // Save to localStorage
+        this.saveRoomToStorage(roomId);
+    }
+    
+    /**
+     * Switch to a different room
+     */
+    switchRoom(roomId) {
+        console.log('switchRoom called with:', roomId);
+        
+        if (!roomId || roomId.trim() === '') {
+            this.showNotification('Please enter a valid room name', 'warning');
+            return;
+        }
+        
+        // Check if WebSocket is connected
+        if (!this.wsManager.connected) {
+            this.showNotification('Not connected to server. Please wait...', 'error');
+            return;
+        }
+        
+        // Sanitize room ID (alphanumeric, dash, underscore only)
+        const sanitizedRoomId = roomId.trim().replace(/[^a-zA-Z0-9-_]/g, '-');
+        
+        if (sanitizedRoomId !== roomId.trim()) {
+            this.showNotification('Room name contains invalid characters. Using sanitized name.', 'info');
+        }
+        
+        // Clear current canvas state and active strokes from other users
+        // This prevents strokes from the old room from appearing in the new room
+        this.operationHistory = [];
+        this.currentOperationIndex = -1;
+        this.canvasManager.setOperationHistory([]);
+        this.canvasManager.clear();
+        this.activeStrokes.clear(); // Clear all active strokes from other users
+        this.canvasManager.userCursors.clear(); // Clear all user cursors
+        this.updateOperationCount();
+        this.updateUndoRedoButtons();
+        
+        // Leave current room and join new one
+        console.log('Joining room:', sanitizedRoomId);
+        this.wsManager.joinRoom(sanitizedRoomId);
+        this.updateRoomInfo(sanitizedRoomId);
+        
+        this.showNotification(`Joined room: ${sanitizedRoomId}`, 'success');
+    }
+    
+    /**
      * Update the users list display
      */
     updateUsersList() {
@@ -671,10 +823,33 @@ class CollaborativeCanvas {
 }
 
 // Initialize application when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        new CollaborativeCanvas();
-    });
-} else {
+function initApp() {
+    console.log('Initializing CollaborativeCanvas...');
+    console.log('DOM ready state:', document.readyState);
+    
+    // Check if required elements exist
+    const roomInput = document.getElementById('roomInput');
+    const joinBtn = document.getElementById('joinRoomBtn');
+    const createBtn = document.getElementById('createRoomBtn');
+    
+    console.log('Room input exists:', !!roomInput);
+    console.log('Join button exists:', !!joinBtn);
+    console.log('Create button exists:', !!createBtn);
+    
+    if (!roomInput || !joinBtn || !createBtn) {
+        console.error('Required room control elements not found!');
+        console.log('Available elements:', {
+            roomInput: !!roomInput,
+            joinBtn: !!joinBtn,
+            createBtn: !!createBtn
+        });
+    }
+    
     new CollaborativeCanvas();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
 }

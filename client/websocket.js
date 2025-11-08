@@ -98,8 +98,28 @@ export class WebSocketManager {
      * Join a drawing room
      */
     joinRoom(roomId = 'default') {
+        console.log('WebSocketManager.joinRoom called with:', roomId);
+        console.log('Socket exists:', !!this.socket);
+        console.log('Connected:', this.connected);
+        
+        if (!this.socket || !this.connected) {
+            console.error('Cannot join room: WebSocket not connected');
+            return;
+        }
+        
+        // Track previous room for proper cleanup
+        const previousRoomId = this.roomId;
         this.roomId = roomId;
-        this.socket.emit('joinRoom', { roomId });
+        
+        if (previousRoomId && previousRoomId !== roomId) {
+            console.log('Switching from room:', previousRoomId, 'to room:', roomId);
+        }
+        
+        console.log('Emitting joinRoom event for room:', roomId, 'previous:', previousRoomId);
+        this.socket.emit('joinRoom', { 
+            roomId,
+            previousRoomId: previousRoomId || null
+        });
     }
     
     /**
