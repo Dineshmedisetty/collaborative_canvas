@@ -13,8 +13,6 @@ export class WebSocketManager {
      */
     connect() {
         return new Promise((resolve, reject) => {
-            // Connect to same origin (works for Railway since frontend and backend are on same domain)
-            // For Railway, both static files and Socket.IO server are on the same domain
             this.socket = io({
                 reconnection: true,
                 reconnectionDelay: 1000,
