@@ -6,8 +6,10 @@ const fs = require('fs');
 const path = require('path');
 
 class PersistenceManager {
-    constructor(dataDir = './data') {
-        this.dataDir = dataDir;
+    constructor(dataDir = null) {
+        // Allow environment variable to override default data directory
+        // This is useful for deployment scenarios where you need persistent storage
+        this.dataDir = dataDir || process.env.DATA_DIR || path.join(__dirname, '../data');
         this.ensureDataDir();
     }
     
