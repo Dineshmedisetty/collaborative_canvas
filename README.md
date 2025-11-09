@@ -72,6 +72,9 @@ A multi-user drawing application where multiple people can draw simultaneously o
 4. **Open in browser**
    - Navigate to `http://localhost:3000`
    - Open multiple browser tabs/windows to test multi-user collaboration
+  
+5. **Access the Deployement**
+   - Access the web application here `http://collaborativecanvas-production.up.railway.app`
 
 ## 🧪 Testing with Multiple Users
 
@@ -83,7 +86,7 @@ A multi-user drawing application where multiple people can draw simultaneously o
 
 ### Method 2: Multiple Devices
 1. Start the server: `npm start`
-2. Find your local IP address (e.g., `192.168.1.100`)
+2. Find your local IP address
 3. Access `http://<your-ip>:3000` from other devices on the same network
 4. Draw simultaneously from different devices
 
@@ -133,7 +136,7 @@ collaborative-canvas/
 └── ARCHITECTURE.md
 ```
 
-## 🐛 Known Limitations
+##  Known Limitations
 
 1. **Conflict Resolution**: Conflicts are handled sequentially (last operation wins for simultaneous strokes)
 2. **History Limit**: Operation history limited to 1000 operations per room
@@ -142,21 +145,21 @@ collaborative-canvas/
 5. **File-based Storage**: Currently uses file system for persistence (consider database for production)
 6. **No Authentication**: All users can modify any room (no access control)
 
-## ⚠️ Browser Compatibility
+##  Browser Compatibility
 
 - Chrome/Edge (recommended)
 - Firefox
 - Safari
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 🔒 Security Considerations
+##  Security Considerations
 
 - Currently no authentication or authorization
 - All users can modify the canvas
 - No rate limiting on WebSocket events
 - CORS is open (`*`) - should be restricted in production
 
-## 📊 Performance
+##  Performance
 
 - Drawing events throttled to ~60fps
 - Canvas operations optimized for smooth rendering
@@ -164,20 +167,12 @@ collaborative-canvas/
 - Efficient redrawing from operation history
 - Active stroke tracking for real-time collaboration
 
-## 🛠️ Development
-
-### Running in Development Mode
-```bash
-npm run dev
-```
-This uses `nodemon` to auto-reload the server on file changes.
-
-### Debugging
+## Debugging
 - Check browser console for client-side logs
 - Check server console for server-side logs
 - Use Chrome DevTools Network tab to inspect WebSocket messages
 
-## 📝 Future Improvements
+##  Future Improvements
 
 ### ✅ Completed Features
 - [x] **Drawing Persistence** - File-based persistence with auto-save (every 30 seconds)
@@ -187,26 +182,19 @@ This uses `nodemon` to auto-reload the server on file changes.
 - [x] **Drawing Tools** - Brush, eraser, rectangle, circle, line, and text tools
 - [x] **Smooth Drawing** - Fixed dotted line issue for continuous smooth strokes
 
-### 🚀 Planned Improvements
+###  Future Improvements
 - [ ] **User Names/Avatars** - Allow users to set custom names and profile pictures
 - [ ] **Authentication & Authorization** - User accounts and permission system
-- [ ] **Rate Limiting** - Prevent abuse and spam
-- [ ] **Drawing Export** - Export canvas as PNG, SVG, or PDF
 - [ ] **Image Upload** - Upload and draw images on canvas
 - [ ] **Advanced Shapes** - Polygon, arrow, and custom shape tools
 - [ ] **Layer Management** - Multiple layers for complex drawings
 - [ ] **Drawing History Timeline** - View and restore previous canvas states
-- [ ] **Collaborative Cursors** - Enhanced cursor tracking with user names
 - [ ] **Room Permissions** - Private/public rooms with access control
 - [ ] **Database Storage** - Migrate from file-based to database (MongoDB/PostgreSQL)
 - [ ] **Operational Transforms** - Better conflict resolution for simultaneous edits
 - [ ] **Mobile App** - Native mobile app for iOS and Android
 - [ ] **Offline Support** - Work offline and sync when connection restored
 - [ ] **Drawing Templates** - Pre-made templates and backgrounds
-- [ ] **Undo/Redo History** - Visual history timeline for undo/redo
-- [ ] **Collaboration Invites** - Share room links with expiration
-- [ ] **Drawing Comments** - Add comments and annotations to drawings
-- [ ] **Version Control** - Save and restore different versions of drawings
 
 ## ⏱️ Time Spent
 
@@ -222,15 +210,11 @@ Breakdown:
 - Testing and bug fixes: 2 hours
 - Documentation: 1 hour
 
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📧 Contact
+##  Contact
 
 For questions or issues, please open an issue on the repository.
 
