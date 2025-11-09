@@ -2,25 +2,45 @@
 
 A multi-user drawing application where multiple people can draw simultaneously on the same canvas with real-time synchronization. Built with vanilla JavaScript, HTML5 Canvas, Node.js, and Socket.io.
 
-## 🚀 Features
+## Features Overview
+### Core Drawing Capabilities
 
-### Core Features
-- **Drawing Tools**: Brush, eraser, rectangle, circle, line, text, and image upload
-- **Real-time Sync**: See other users' drawings as they draw (not after they finish)
-- **User Indicators**: Visual cursor positions showing where other users are currently drawing
-- **Global Undo/Redo**: Works across all users with server-side state management
-- **User Management**: Shows who's online and assigns unique colors to users
-- **Room System**: Multiple isolated canvases with room selection UI (create/join rooms)
-- **Mobile Support**: Touch events for drawing on mobile devices
-- **Drawing Persistence**: Auto-save every 30 seconds - drawings persist across server restarts
-- **Performance Metrics**: Real-time FPS counter and latency display
+- Multiple Tools: Brush, eraser, shapes (rectangle, circle, line)
+- Customization: Color picker with presets, adjustable stroke width (1-50px)
+- Shape Options: Filled or outlined shapes
+- Export: Download canvas as PNG image
 
-### Technical Features
-- Path optimization for smooth drawing
-- Efficient canvas redrawing strategies
-- Throttled drawing events for performance (~60fps)
-- Client-side prediction for immediate feedback
-- Network latency handling with reconnection support
+### Real-Time Collaboration
+
+- Live Drawing Sync: Watch other users draw in real-time (no lag!)
+- Animated Cursors: See where collaborators are drawing with named cursors
+- Online Indicators: Track active users with color-coded presence
+- Instant Updates: Changes broadcast to all users immediately
+
+### Room System (Isolated Workspaces)
+
+- Multiple Rooms: Create separate canvases for different projects
+- Room Selection UI: Easy-to-use interface for creating/joining rooms
+- Default Room: Quick start with default room for instant collaboration
+- Custom Rooms: Join specific rooms via URL: ?room=your-room-name
+- Independent State: Each room maintains its own drawing history
+
+### Drawing Persistence
+
+- Auto-Save: Canvas state saved every 5 seconds automatically
+- Server Restart Recovery: All drawings preserved across server restarts
+- File-Based Storage: Simple JSON storage in data/rooms/ directory
+- Per-Room Persistence: Each room saves independently
+- State Restoration: Operations and undo/redo history fully restored
+
+### Advanced Features
+
+- Global Undo/Redo: Server-authoritative undo/redo works across all users
+- Performance Monitoring: Real-time FPS and network latency display
+- Path Optimization: Smooth curves using quadratic Bezier paths
+- Mobile Support: Touch events for tablets and smartphones
+- Keyboard Shortcuts: Fast workflow with tool shortcuts
+- Reconnection Handling: Auto-reconnect with message queuing
 
 ## 📋 Prerequisites
 
