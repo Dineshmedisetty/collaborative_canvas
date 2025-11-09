@@ -136,6 +136,25 @@ collaborative-canvas/
 └── ARCHITECTURE.md
 ```
 
+## Room System
+
+### Accessing Rooms
+   - Default Room:
+     ```bash
+     http://localhost:3000
+     ```
+   - Custom Rooms:
+     ```bash
+     http://localhost:3000/?room=<ur-room-name>
+     ```
+### How It Works
+- Each room has its own isolated canvas
+- Create a room by visiting a unique URL
+- Share the URL with team members to collaborate
+- Rooms are automatically created when first accessed
+     
+
+
 ##  Known Limitations
 
 1. **Conflict Resolution**: Conflicts are handled sequentially (last operation wins for simultaneous strokes)
