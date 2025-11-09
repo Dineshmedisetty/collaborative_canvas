@@ -45,7 +45,7 @@ The project is live here <a href='http://collaborativecanvas-production.up.railw
 - Keyboard Shortcuts: Fast workflow with tool shortcuts
 - Reconnection Handling: Auto-reconnect with message queuing
 
-## 📋 Prerequisites
+##  Prerequisites
 
 - Node.js (v14 or higher)
 - npm (v6 or higher)
@@ -101,7 +101,7 @@ The project is live here <a href='http://collaborativecanvas-production.up.railw
 -  Clear canvas - should clear for all users
 -  User joining/leaving - should update online user count
 
-## ⌨️ Keyboard Shortcuts
+##  Keyboard Shortcuts
 
 - `Ctrl+B` (or `Cmd+B` on Mac) - Switch to brush tool
 - `Ctrl+E` (or `Cmd+E` on Mac) - Switch to eraser tool
