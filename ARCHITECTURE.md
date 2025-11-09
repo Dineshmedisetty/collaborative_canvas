@@ -19,50 +19,10 @@ The Collaborative Canvas application follows a client-server architecture with W
 
 ## 🔄 Data Flow Diagram
 
-### Drawing Event Flow
+<img width="990" height="1322" alt="flam drawio" src="https://github.com/user-attachments/assets/81c62fc9-f292-4873-af34-8b9f8a4897a8" />
 
-```
-User Action (Mouse/Touch)
-    │
-    ▼
-CanvasManager.handleDrawStart()
-    │
-    ▼
-Emit 'strokeStart' event
-    │
-    ▼
-main.js: setupCanvasEvents()
-    │
-    ▼
-WebSocketManager.sendStrokeStart()
-    │
-    ▼
-Socket.io Client → Server
-    │
-    ▼
-server.js: socket.on('strokeStart')
-    │
-    ▼
-RoomManager.getRoom() → DrawingState
-    │
-    ▼
-Store active stroke
-    │
-    ▼
-Broadcast to other clients (socket.to(roomId).emit('stroke'))
-    │
-    ▼
-Other Clients: WebSocketManager.on('stroke')
-    │
-    ▼
-main.js: handleRemoteStroke()
-    │
-    ▼
-CanvasManager.drawStrokeSegment()
-    │
-    ▼
-Canvas updated in real-time
-```
+
+
 
 ### Undo/Redo Flow
 
@@ -105,205 +65,76 @@ Canvas redrawn with visible operations only
 
 ## 🌐 WebSocket Protocol
 
-### Client → Server Messages
+## 📤 Client → Server Messages
 
-#### `joinRoom`
-Join a drawing room.
-```javascript
-{
-  roomId: string  // Room identifier (e.g., "default")
-}
-```
+### Core Message Types
 
-#### `strokeStart`
-Begin a new stroke.
-```javascript
-{
-  roomId: string,
-  stroke: {
-    id: string,           // Unique stroke ID
-    tool: string,         // "brush" | "eraser"
-    color: string,        // Hex color code
-    width: number,        // Stroke width in pixels
-    points: Array<{x, y}>, // Initial point
-    userId: string,       // User ID
-    timestamp: number     // Unix timestamp
-  }
-}
-```
+**1. `joinRoom`** - Join a drawing room
+- **Data**: `{roomId, previousRoomId?}`
+- **Server**: Loads room state, sends canvas state, notifies other users
 
-#### `strokeDraw`
-Add points to active stroke (sent during drawing).
-```javascript
-{
-  roomId: string,
-  points: Array<{x, y}>, // New points to add
-  timestamp: number
-}
-```
+**2. `strokeStart`** - Begin drawing
+- **Data**: `{roomId, stroke: {id, tool, color, width, points, userId, timestamp}}`
+- **Server**: Stores in activeStrokes map, broadcasts to others
 
-#### `strokeEnd`
-Complete a stroke.
-```javascript
-{
-  roomId: string,
-  stroke: {
-    id: string,
-    tool: string,
-    color: string,
-    width: number,
-    points: Array<{x, y}>, // All points in stroke
-    userId: string,
-    timestamp: number
-  }
-}
-```
+**3. `strokeDraw`** - Add points during drawing
+- **Data**: `{roomId, points: [{x,y}], timestamp}`
+- **Server**: Appends points to active stroke, broadcasts incrementally
 
-#### `cursor`
-Update cursor position.
-```javascript
-{
-  roomId: string,
-  position: {x, y},
-  userId: string
-}
-```
+**4. `strokeEnd`** - Complete stroke
+- **Data**: `{roomId, stroke: {complete stroke object}}`
+- **Server**: Moves to operation history, saves to disk, broadcasts state
 
-#### `undo`
-Request undo operation.
-```javascript
-{
-  roomId: string,
-  userId: string,
-  timestamp: number
-}
-```
+**5. `cursor`** - Update cursor position
+- **Data**: `{roomId, position: {x,y}, userId}`
+- **Server**: Broadcasts to others (ephemeral, no storage)
 
-#### `redo`
-Request redo operation.
-```javascript
-{
-  roomId: string,
-  userId: string,
-  timestamp: number
-}
-```
+**6. `undo` / `redo`** - Undo/Redo request
+- **Data**: `{roomId, userId, timestamp}`
+- **Server**: Modifies currentIndex, saves state, broadcasts full state
 
-#### `clear`
-Clear the canvas.
-```javascript
-{
-  roomId: string,
-  userId: string,
-  timestamp: number
-}
-```
+**7. `clear`** - Clear canvas
+- **Data**: `{roomId, userId, timestamp}`
+- **Server**: Clears operations, resets index, saves, broadcasts
 
-### Server → Client Messages
+---
 
-#### `init`
-Initial client setup.
-```javascript
-{
-  userId: string,    // Unique user ID
-  userColor: string  // Assigned user color (HSL)
-}
-```
+## 📥 Server → Client Messages
 
-#### `canvasState`
-Full canvas state (sent on join or after operations).
-```javascript
-{
-  operations: Array<Operation>, // Visible operations
-  currentIndex: number          // Current position in history
-}
-```
+### Core Message Types
 
-#### `userJoined`
-User joined the room.
-```javascript
-{
-  userId: string,
-  userColor: string
-}
-```
+**1. `init`** - Client initialization
+- **Data**: `{userId, userColor}`
+- **Purpose**: Assign user identity and color
 
-#### `userLeft`
-User left the room.
-```javascript
-{
-  userId: string
-}
-```
+**2. `canvasState`** - Full state synchronization
+- **Data**: `{operations: [...], currentIndex: N}`
+- **Purpose**: Sync client with complete canvas state
+- **When**: On join, after undo/redo/clear, after stroke end
 
-#### `stroke`
-Remote stroke event.
-```javascript
-{
-  phase: "start" | "draw" | "end",
-  stroke: {
-    // Stroke data (varies by phase)
-    points: Array<{x, y}>,
-    tool: string,
-    color: string,
-    width: number
-  },
-  userId: string
-}
-```
+**3. `stroke`** - Real-time drawing events
+- **Data**: `{phase: "start"|"draw"|"end", stroke: {...}, userId}`
+- **Purpose**: Broadcast drawing activity to other users
+- **Broadcast**: To all users in room EXCEPT sender
 
-#### `cursor`
-Remote cursor position.
-```javascript
-{
-  userId: string,
-  position: {x, y},
-  userColor: string,
-  userName?: string
-}
-```
+**4. `cursor`** - Remote cursor position
+- **Data**: `{userId, position: {x,y}, userColor}`
+- **Purpose**: Show other users' cursor positions
 
-#### `operation`
-Remote operation (undo/redo/clear).
-```javascript
-{
-  type: "undo" | "redo" | "clear",
-  operations: Array<Operation>, // All operations (for sync)
-  currentIndex: number,         // New current index
-  userId: string,
-  timestamp: number
-}
-```
+**5. `operation`** - State changes (undo/redo/clear)
+- **Data**: `{type, operations: [...], currentIndex, userId, timestamp}`
+- **Purpose**: Synchronize state modifications across all clients
+- **Broadcast**: To ALL users including sender
 
-#### `onlineUsers`
-Updated online users list.
-```javascript
-{
-  users: Array<{
-    userId: string,
-    userColor: string,
-    joinedAt: number
-  }>
-}
-```
+**6. `userJoined` / `userLeft`** - User presence
+- **Data**: `{userId, userColor?}`
+- **Purpose**: Notify about user join/leave events
 
-### Operation Structure
-```javascript
-{
-  type: "draw",
-  stroke: {
-    id: string,
-    tool: string,
-    color: string,
-    width: number,
-    points: Array<{x, y}>,
-    userId: string,
-    timestamp: number
-  },
-  userId: string,
-  timestamp: number
-}
-```
+**7. `onlineUsers`** - User list update
+- **Data**: `{users: [{userId, userColor, joinedAt}]}`
+- **Purpose**: Maintain accurate online user list
+
+---
 
 ## 🔄 Undo/Redo Strategy
 
