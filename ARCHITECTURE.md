@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-## 📐 System Architecture
+##  System Architecture
 
 ### High-Level Overview
 
@@ -17,7 +17,7 @@ The Collaborative Canvas application follows a client-server architecture with W
    Manager                 Drawing State           Manager
 ```
 
-## 🔄 Data Flow Diagram
+##  Data Flow Diagram
 
 <img width="990" height="1322" alt="flam drawio" src="https://github.com/user-attachments/assets/81c62fc9-f292-4873-af34-8b9f8a4897a8" />
 
@@ -63,9 +63,9 @@ CanvasManager.redrawFromHistory(visibleOperations)
 Canvas redrawn with visible operations only
 ```
 
-## 🌐 WebSocket Protocol
+##  WebSocket Protocol
 
-## 📤 Client → Server Messages
+##  Client → Server Messages
 
 ### Core Message Types
 
@@ -99,7 +99,7 @@ Canvas redrawn with visible operations only
 
 ---
 
-## 📥 Server → Client Messages
+##  Server → Client Messages
 
 ### Core Message Types
 
@@ -136,7 +136,7 @@ Canvas redrawn with visible operations only
 
 ---
 
-## 🔄 Undo/Redo Strategy
+##  Undo/Redo Strategy
 
 ### Overview
 
@@ -204,7 +204,7 @@ User A redo:
 Cannot redo - op3 is gone (replaced by op4)
 ```
 
-## ⚡ Performance Decisions
+##  Performance Decisions
 
 ### 1. Drawing Event Throttling
 
@@ -360,7 +360,7 @@ if (now - cursor.lastUpdate > 5000) {
 }
 ```
 
-## 🔀 Conflict Resolution
+##  Conflict Resolution
 
 ### Overview
 
@@ -483,7 +483,7 @@ For production use, consider:
 6. **Optimistic Locking**: Prevent conflicts before they occur
 
 
-## 🎯 Conclusion
+##  Conclusion
 
 The Collaborative Canvas application demonstrates real-time collaboration using WebSockets, canvas operations, and state synchronization. The architecture prioritizes simplicity and real-time performance, with clear areas for improvement in conflict resolution, persistence, and scalability.
 
