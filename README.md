@@ -76,7 +76,7 @@ A multi-user drawing application where multiple people can draw simultaneously o
 5. **Access the Deployement**
    - Access the web application here `http://collaborativecanvas-production.up.railway.app`
 
-## 🧪 Testing with Multiple Users
+##  Testing with Multiple Users
 
 ### Method 1: Multiple Browser Tabs
 1. Start the server: `npm start`
@@ -114,7 +114,7 @@ A multi-user drawing application where multiple people can draw simultaneously o
 
 **Note**: Tool shortcuts require Ctrl/Cmd key to avoid conflicts with typing and text input.
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 collaborative-canvas/
@@ -193,7 +193,7 @@ collaborative-canvas/
 
 ##  Future Improvements
 
-### ✅ Completed Features
+###  Completed Features
 - [x] **Drawing Persistence** - File-based persistence with auto-save (every 30 seconds)
 - [x] **Room System** - Multiple isolated canvases with room selection UI
 - [x] **Performance Metrics** - Real-time FPS counter and latency display
@@ -215,7 +215,7 @@ collaborative-canvas/
 - [ ] **Offline Support** - Work offline and sync when connection restored
 - [ ] **Drawing Templates** - Pre-made templates and backgrounds
 
-## ⏱️ Time Spent
+##  Time Spent
 
 **Total Development Time**: Approximately 12-15 hours
 
